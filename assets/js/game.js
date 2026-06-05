@@ -16,6 +16,7 @@
 
   const elements = {
     board: document.getElementById("board"),
+    boardWrap: document.getElementById("boardWrap"),
     difficultyLabel: document.getElementById("difficultyLabel"),
     mineCounter: document.getElementById("mineCounter"),
     timer: document.getElementById("timer"),
@@ -42,6 +43,8 @@
   let timerId = null;
   let longPressTimer = null;
   let longPressTriggered = false;
+  let longPressStart = null;
+  let boardPressStart = null;
 
   function createEmptyBoard() {
     board = Array.from({ length: config.rows }, (_, row) =>
@@ -58,6 +61,7 @@
 
   function initGame() {
     stopTimer();
+    clearLongPressTimer();
     createEmptyBoard();
     gameState = "ready";
     revealedSafeCells = 0;
@@ -289,6 +293,10 @@
     updateCell(cell);
   }
 
+  function isGameOver() {
+    return gameState === "won" || gameState === "lost";
+  }
+
   function checkWin() {
     if (revealedSafeCells === config.rows * config.cols - config.mines) {
       endGame("won");
@@ -331,6 +339,12 @@
     elements.resultDialog.showModal();
   }
 
+  function showStoredResult() {
+    if (isGameOver() && !elements.resultDialog.open) {
+      elements.resultDialog.showModal();
+    }
+  }
+
   function calculateScore(result) {
     const correctFlags = board.flat().filter((cell) => cell.isMine && cell.isFlagged).length;
     const winBonus = result === "won" ? config.mines * 20 : 0;
@@ -360,6 +374,21 @@
     }
   }
 
+  function clearLongPressTimer() {
+    if (longPressTimer !== null) {
+      window.clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  }
+
+  function getPointerDistance(start, event) {
+    if (!start) {
+      return 0;
+    }
+
+    return Math.hypot(event.clientX - start.x, event.clientY - start.y);
+  }
+
   elements.board.addEventListener("click", (event) => {
     if (longPressTriggered) {
       longPressTriggered = false;
@@ -387,18 +416,73 @@
     }
 
     longPressTriggered = false;
+    longPressStart = {
+      x: event.clientX,
+      y: event.clientY
+    };
     longPressTimer = window.setTimeout(() => {
       longPressTriggered = true;
       toggleFlag(cell);
+      if (navigator.vibrate) {
+        navigator.vibrate(15);
+      }
     }, 520);
   });
 
+  elements.board.addEventListener("pointermove", (event) => {
+    if (getPointerDistance(longPressStart, event) > 10) {
+      clearLongPressTimer();
+    }
+  });
+
   elements.board.addEventListener("pointerup", () => {
-    window.clearTimeout(longPressTimer);
+    clearLongPressTimer();
+    longPressStart = null;
+    if (longPressTriggered) {
+      window.setTimeout(() => {
+        longPressTriggered = false;
+      }, 350);
+    }
   });
 
   elements.board.addEventListener("pointercancel", () => {
-    window.clearTimeout(longPressTimer);
+    clearLongPressTimer();
+    longPressStart = null;
+  });
+
+  elements.resultDialog.addEventListener("click", (event) => {
+    if (event.target === elements.resultDialog && isGameOver()) {
+      elements.resultDialog.close();
+    }
+  });
+
+  elements.boardWrap.addEventListener("pointerdown", (event) => {
+    boardPressStart = {
+      x: event.clientX,
+      y: event.clientY,
+      scrollLeft: elements.boardWrap.scrollLeft,
+      scrollTop: elements.boardWrap.scrollTop
+    };
+  });
+
+  elements.boardWrap.addEventListener("pointerup", (event) => {
+    if (!boardPressStart) {
+      return;
+    }
+
+    const pointerMoved = getPointerDistance(boardPressStart, event) > 8;
+    const scrollMoved =
+      Math.abs(elements.boardWrap.scrollLeft - boardPressStart.scrollLeft) > 2 ||
+      Math.abs(elements.boardWrap.scrollTop - boardPressStart.scrollTop) > 2;
+
+    boardPressStart = null;
+    if (!pointerMoved && !scrollMoved) {
+      showStoredResult();
+    }
+  });
+
+  elements.boardWrap.addEventListener("pointercancel", () => {
+    boardPressStart = null;
   });
 
   elements.restartButton.addEventListener("click", initGame);

@@ -343,7 +343,7 @@ h2 {
   border: 2px solid var(--board-line);
   background: var(--board-line);
   gap: 1px;
-  touch-action: manipulation;
+  touch-action: pan-x pan-y;
 }
 
 .cell {
@@ -360,6 +360,12 @@ h2 {
   line-height: 1;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.cell:disabled {
+  pointer-events: none;
 }
 
 .cell:focus-visible {
