@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>扫雷 | Minefield</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/theme.js" defer></script>
+</head>
+<body class="home-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="home-shell">
+    <section class="home-hero" aria-labelledby="home-title">
+      <p class="eyebrow">Classic Minesweeper</p>
+      <h1 id="home-title">扫雷</h1>
+      <p class="hero-copy">选择难度，翻开所有安全格，避开隐藏的地雷。</p>
+    </section>
+
+    <section class="difficulty-panel" aria-labelledby="difficulty-title">
+      <div class="panel-heading">
+        <h2 id="difficulty-title">选择难度</h2>
+        <p>首次点击后开始计时，并保证第一格安全。</p>
+      </div>
+
+      <form class="difficulty-form" id="difficultyForm">
+        <label class="difficulty-card">
+          <input type="radio" name="difficulty" value="beginner" checked>
+          <span class="difficulty-name">初级</span>
+          <span class="difficulty-meta">9 x 9 · 10 雷</span>
+        </label>
+
+        <label class="difficulty-card">
+          <input type="radio" name="difficulty" value="intermediate">
+          <span class="difficulty-name">中级</span>
+          <span class="difficulty-meta">16 x 16 · 40 雷</span>
+        </label>
+
+        <label class="difficulty-card">
+          <input type="radio" name="difficulty" value="expert">
+          <span class="difficulty-name">高级</span>
+          <span class="difficulty-meta">30 x 16 · 99 雷</span>
+        </label>
+
+        <button class="primary-button" type="submit">开始游戏</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById("difficultyForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      const difficulty = formData.get("difficulty") || "beginner";
+      window.location.href = `game.html?difficulty=${encodeURIComponent(difficulty)}`;
+    });
+  </script>
+</body>
+</html>

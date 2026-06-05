@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>扫雷游戏</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/game.js" defer></script>
+</head>
+<body class="game-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="game-shell">
+    <header class="game-header">
+      <div>
+        <p class="eyebrow" id="difficultyLabel">Classic Minesweeper</p>
+        <h1>扫雷游戏</h1>
+      </div>
+    </header>
+
+    <div class="game-layout">
+      <aside class="game-sidebar" aria-label="游戏信息">
+        <section class="game-status" aria-label="游戏状态">
+          <div class="status-item">
+            <span class="status-label">剩余雷数</span>
+            <strong id="mineCounter">0</strong>
+          </div>
+          <div class="status-item">
+            <span class="status-label">用时</span>
+            <strong><span id="timer">0</span>s</strong>
+          </div>
+          <div class="status-item">
+            <span class="status-label">状态</span>
+            <strong id="stateText">准备中</strong>
+          </div>
+        </section>
+
+        <div class="sidebar-actions">
+          <button class="ghost-button" id="restartButton" type="button">重新开始</button>
+          <a class="ghost-button" href="index.html">返回首页</a>
+        </div>
+      </aside>
+
+      <section class="board-section" aria-label="扫雷棋盘">
+        <div class="board-wrap">
+          <div class="board" id="board" role="grid" aria-label="扫雷棋盘"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="result-dialog" id="resultDialog">
+    <div class="result-content">
+      <p class="eyebrow" id="resultState">Game Over</p>
+      <h2 id="resultTitle">游戏结束</h2>
+      <dl class="score-list">
+        <div>
+          <dt>最终分数</dt>
+          <dd id="finalScore">0</dd>
+        </div>
+        <div>
+          <dt>用时</dt>
+          <dd><span id="finalTime">0</span>s</dd>
+        </div>
+        <div>
+          <dt>翻开安全格</dt>
+          <dd id="safeCells">0</dd>
+        </div>
+      </dl>
+      <div class="dialog-actions">
+        <button class="primary-button" id="playAgainButton" type="button">再来一局</button>
+        <a class="ghost-button" href="index.html">返回首页</a>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>
