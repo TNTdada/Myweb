@@ -104,7 +104,8 @@ a {
 .home-page,
 .game-page,
 .auth-page,
-.profile-page {
+.profile-page,
+.daily-page {
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -373,8 +374,12 @@ h2 {
   box-shadow: 0 16px 30px rgba(15, 118, 110, 0.24);
   font-weight: 700;
   line-height: 1.25;
-  cursor: not-allowed;
+  cursor: pointer;
   transform: translateY(-50%);
+}
+
+.daily-button:hover {
+  background: var(--accent-dark);
 }
 
 .difficulty-card {
@@ -759,6 +764,105 @@ h2 {
   min-height: calc(100vh - 56px);
 }
 
+.daily-shell {
+  width: min(1120px, 100%);
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-height: calc(100vh - 56px);
+}
+
+.daily-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.daily-header h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2.6rem, 8vw, 5.8rem);
+}
+
+.daily-header .ghost-button {
+  flex: 0 0 auto;
+}
+
+.daily-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--surface-glass);
+  box-shadow: var(--shadow);
+}
+
+.daily-toolbar strong {
+  text-align: center;
+}
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.challenge-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  background: var(--surface-glass);
+  box-shadow: var(--shadow);
+}
+
+.challenge-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.challenge-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.challenge-details {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.challenge-details div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+.challenge-details dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.challenge-details dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 800;
+}
+
+.challenge-card .ghost-button:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
 .profile-header {
   display: flex;
   align-items: flex-end;
@@ -814,7 +918,8 @@ h2 {
   .home-page,
   .game-page,
   .auth-page,
-  .profile-page {
+  .profile-page,
+  .daily-page {
     padding: 18px;
   }
 
@@ -909,6 +1014,28 @@ h2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .daily-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .daily-header .ghost-button {
+    width: 100%;
+  }
+
+  .daily-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .daily-toolbar strong {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .daily-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   :root {
     --cell-size: 30px;
   }
@@ -918,7 +1045,8 @@ h2 {
   .home-page,
   .game-page,
   .auth-page,
-  .profile-page {
+  .profile-page,
+  .daily-page {
     padding: 12px;
   }
 
@@ -972,7 +1100,9 @@ h2 {
   .auth-actions,
   .account-actions,
   .profile-summary,
-  .stats-grid {
+  .stats-grid,
+  .daily-toolbar,
+  .daily-grid {
     grid-template-columns: 1fr;
   }
 

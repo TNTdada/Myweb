@@ -142,6 +142,22 @@
     return buildGameStats(data || []);
   }
 
+  async function fetchDailyChallenges(dateString) {
+    const supabase = getClient();
+    const { data, error } = await supabase
+      .from("daily_challenges")
+      .select("id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published")
+      .eq("challenge_date", dateString)
+      .eq("is_published", true)
+      .order("slot_index", { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  }
+
   function buildGameStats(rows) {
     const games = rows.length;
     const wins = rows.filter((row) => row.won).length;
@@ -176,6 +192,7 @@
     authEmailFromUsername,
     friendlyError,
     fetchProfile,
-    fetchGameStats
+    fetchGameStats,
+    fetchDailyChallenges
   };
 })();

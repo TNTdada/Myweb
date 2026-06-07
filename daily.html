@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日挑战 | 扫雷</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/daily.js" defer></script>
+</head>
+<body class="daily-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="daily-shell">
+    <header class="daily-header">
+      <div>
+        <p class="eyebrow">Daily Challenges</p>
+        <h1>每日挑战</h1>
+        <p class="hero-copy">每天 5 个任务，覆盖经典、点开、寻宝、引爆与插旗模式。</p>
+      </div>
+      <a class="ghost-button" href="index.html">返回首页</a>
+    </header>
+
+    <section class="daily-toolbar" aria-label="日期切换">
+      <button class="ghost-button" id="prevDayButton" type="button">前一天</button>
+      <strong id="dailyDateLabel">-</strong>
+      <button class="ghost-button" id="nextDayButton" type="button">后一天</button>
+      <button class="ghost-button" id="todayButton" type="button">今天</button>
+    </section>
+
+    <section class="daily-grid" id="dailyGrid" aria-label="挑战列表"></section>
+    <p class="profile-message" id="dailyMessage">正在读取每日挑战</p>
+  </main>
+</body>
+</html>
