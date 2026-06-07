@@ -98,7 +98,7 @@
     });
 
     if (error) {
-      setMessage(`注册失败：${error.message}`);
+      setMessage(`注册失败：${window.MywebSupabase.friendlyError(error, "请检查注册信息后重试")}`);
       resetCaptcha();
       isSubmitting = false;
       elements.signUp.disabled = false;
@@ -111,7 +111,7 @@
         setMessage("注册成功，正在返回首页");
         window.location.href = "index.html";
       } catch (profileError) {
-        setMessage(`账号已创建，但资料保存失败：${profileError.message}`);
+        setMessage(`账号已创建，但资料保存失败：${window.MywebSupabase.friendlyError(profileError, "请稍后登录后修改资料")}`);
         resetCaptcha();
         isSubmitting = false;
         elements.signUp.disabled = false;
@@ -126,10 +126,14 @@
   }
 
   async function init() {
-    supabase = window.MywebSupabase.getClient();
-    const user = await window.MywebSupabase.getCurrentUser();
-    if (user) {
-      setMessage("当前已登录，可返回首页");
+    try {
+      supabase = window.MywebSupabase.getClient();
+      const user = await window.MywebSupabase.getCurrentUser();
+      if (user) {
+        setMessage("当前已登录，可返回首页");
+      }
+    } catch (error) {
+      setMessage(window.MywebSupabase.friendlyError(error, "账户状态读取失败"));
     }
   }
 

@@ -65,6 +65,49 @@
     return `${normalizeUsername(username)}@myweb.local`;
   }
 
+  function friendlyError(error, fallback) {
+    if (!error) {
+      return fallback || "操作失败，请稍后再试";
+    }
+
+    const code = String(error.code || error.error_code || "");
+    const status = String(error.status || "");
+    const message = String(error.message || error.msg || "").toLowerCase();
+
+    if (code === "captcha_failed" || message.includes("captcha")) {
+      return "验证码验证失败，请重新完成验证";
+    }
+    if (code === "user_already_exists" || message.includes("already registered") || message.includes("already exists")) {
+      return "该账户名已被注册，请换一个账户名";
+    }
+    if (code === "invalid_credentials" || message.includes("invalid login credentials")) {
+      return "账户名或密码不正确";
+    }
+    if (code === "email_not_confirmed" || message.includes("email not confirmed")) {
+      return "账号尚未完成验证，请稍后再试";
+    }
+    if (code === "weak_password" || message.includes("weak password") || message.includes("password should")) {
+      return "密码强度不足，请设置更安全的密码";
+    }
+    if (code === "over_email_send_rate_limit" || code === "over_request_rate_limit" || status === "429" || message.includes("rate limit")) {
+      return "操作过于频繁，请稍后再试";
+    }
+    if (code === "23505" || message.includes("duplicate key")) {
+      return "该账户名已被使用，请换一个账户名";
+    }
+    if (code === "42501" || message.includes("row-level security") || message.includes("permission denied")) {
+      return "当前没有权限完成该操作，请重新登录后再试";
+    }
+    if (message.includes("failed to fetch") || message.includes("network") || message.includes("load failed")) {
+      return "网络连接失败，请检查网络后重试";
+    }
+    if (message.includes("invalid") && message.includes("password")) {
+      return "密码格式不符合要求";
+    }
+
+    return fallback || "操作失败，请稍后再试";
+  }
+
   async function fetchProfile(userId) {
     const supabase = getClient();
     const { data, error } = await supabase
@@ -131,6 +174,7 @@
     truncateName,
     normalizeUsername,
     authEmailFromUsername,
+    friendlyError,
     fetchProfile,
     fetchGameStats
   };

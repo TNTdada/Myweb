@@ -63,7 +63,7 @@
       setText("statLastPlayed", formatDate(stats.lastPlayed));
       setText("profileMessage", "数据已更新");
     } catch (error) {
-      setText("profileMessage", error.message || "数据读取失败");
+      setText("profileMessage", window.MywebSupabase.friendlyError(error, "数据读取失败"));
     }
   }
 

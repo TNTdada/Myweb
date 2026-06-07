@@ -73,7 +73,7 @@
       }
     } catch (error) {
       renderSignedOut();
-      panelStatus.textContent = error.message || "账户状态读取失败";
+      panelStatus.textContent = window.MywebSupabase.friendlyError(error, "账户状态读取失败");
     }
   }
 
@@ -101,7 +101,7 @@
     }
     const { error } = await supabase.auth.signOut();
     if (error) {
-      panelStatus.textContent = error.message;
+      panelStatus.textContent = window.MywebSupabase.friendlyError(error, "退出失败，请稍后再试");
       return;
     }
     renderSignedOut();

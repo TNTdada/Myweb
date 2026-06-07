@@ -55,7 +55,7 @@
       .eq("user_id", currentUser.id);
 
     if (profileError) {
-      setMessage(`昵称保存失败：${profileError.message}`);
+      setMessage(`昵称保存失败：${window.MywebSupabase.friendlyError(profileError, "请稍后再试")}`);
       return;
     }
 
@@ -65,7 +65,7 @@
       });
 
       if (passwordError) {
-        setMessage(`昵称已保存，但密码修改失败：${passwordError.message}`);
+        setMessage(`昵称已保存，但密码修改失败：${window.MywebSupabase.friendlyError(passwordError, "请检查新密码后重试")}`);
         return;
       }
     }
@@ -89,7 +89,7 @@
       elements.nickname.value = window.MywebSupabase.displayName(profile, currentUser);
       setMessage("可以修改昵称，或填写新密码后保存。");
     } catch (error) {
-      setMessage(error.message || "账户信息读取失败");
+      setMessage(window.MywebSupabase.friendlyError(error, "账户信息读取失败"));
     }
   }
 

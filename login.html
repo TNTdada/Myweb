@@ -6,6 +6,35 @@
   <title>登录 | 扫雷</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script>
+    window.mywebCaptchaToken = "";
+    window.setCaptchaStatus = function (message, isError) {
+      const status = document.getElementById("captchaStatus");
+      if (!status) {
+        return;
+      }
+      status.textContent = message;
+      status.classList.toggle("is-error", Boolean(isError));
+    };
+    window.onTurnstileSuccess = function (token) {
+      window.mywebCaptchaToken = token;
+      window.setCaptchaStatus("验证已完成。", false);
+    };
+    window.onTurnstileExpired = function () {
+      window.mywebCaptchaToken = "";
+      window.setCaptchaStatus("验证已过期，请重新完成验证。", true);
+    };
+    window.onTurnstileError = function () {
+      window.mywebCaptchaToken = "";
+      window.setCaptchaStatus("验证加载失败，请刷新页面或检查网络。", true);
+    };
+    window.setTimeout(function () {
+      if (!window.mywebCaptchaToken) {
+        window.setCaptchaStatus("验证组件可能仍在加载，若长时间空白请刷新页面。", false);
+      }
+    }, 5000);
+  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="assets/js/theme.js" defer></script>
   <script src="assets/js/supabaseClient.js" defer></script>
   <script src="assets/js/login.js" defer></script>
@@ -30,6 +59,16 @@
           <span>密码</span>
           <input id="loginPasswordInput" type="password" autocomplete="current-password" minlength="6">
         </label>
+        <div class="captcha-wrap" aria-label="验证码">
+          <div
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAADgR4A_jFW1Wa4w9"
+            data-callback="onTurnstileSuccess"
+            data-expired-callback="onTurnstileExpired"
+            data-error-callback="onTurnstileError">
+          </div>
+        </div>
+        <small class="captcha-status" id="captchaStatus">安全验证可能需要几秒钟加载，请稍候。</small>
         <p class="form-message" id="loginMessage">请输入账户名和密码。</p>
         <div class="auth-actions">
           <button class="primary-button" id="signInButton" type="button">登录</button>
