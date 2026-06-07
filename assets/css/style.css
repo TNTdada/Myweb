@@ -378,6 +378,11 @@ h2 {
   transform: translateY(-50%);
 }
 
+.daily-button[disabled],
+.daily-button[aria-disabled="true"] {
+  cursor: pointer;
+}
+
 .daily-button:hover {
   background: var(--accent-dark);
 }
@@ -766,6 +771,7 @@ h2 {
 
 .daily-shell {
   width: min(1120px, 100%);
+  margin: 0 auto;
   display: grid;
   align-content: start;
   gap: 18px;

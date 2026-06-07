@@ -31,9 +31,20 @@
   };
 
   let selectedDate = localDateString(new Date());
+  const todayDate = localDateString(new Date());
 
   function setMessage(value) {
     elements.message.textContent = value;
+  }
+
+  function buildErrorMessage(error) {
+    const friendly = window.MywebSupabase && typeof window.MywebSupabase.friendlyError === "function"
+      ? window.MywebSupabase.friendlyError(error, "每日挑战读取失败")
+      : "每日挑战读取失败";
+    const detail = error && (error.code || error.message)
+      ? `（${error.code || error.message}）`
+      : "";
+    return `${friendly}${detail}`;
   }
 
   function localDateString(date) {
@@ -132,12 +143,42 @@
     try {
       elements.dateLabel.textContent = formatDate(selectedDate);
       setMessage("正在读取每日挑战");
-      const challenges = await window.MywebSupabase.fetchDailyChallenges(selectedDate);
+      let challenges = await window.MywebSupabase.fetchDailyChallenges(selectedDate);
+
+      if (challenges.length === 0 && selectedDate === todayDate) {
+        const fallback = await findLatestPublishedChallenges(todayDate);
+        if (fallback) {
+          selectedDate = fallback.date;
+          challenges = fallback.challenges;
+          elements.dateLabel.textContent = formatDate(selectedDate);
+          renderChallenges(challenges);
+          setMessage(`今天的挑战尚未发布，已显示 ${formatDate(selectedDate)} 的最近挑战。`);
+          return;
+        }
+      }
+
       renderChallenges(challenges);
     } catch (error) {
+      console.error("Daily challenge load failed:", error);
       elements.grid.innerHTML = "";
-      setMessage(window.MywebSupabase.friendlyError(error, "每日挑战读取失败"));
+      setMessage(buildErrorMessage(error));
     }
+  }
+
+  async function findLatestPublishedChallenges(fromDate) {
+    for (let offset = 1; offset <= 30; offset += 1) {
+      const date = addDays(fromDate, -offset);
+      try {
+        const challenges = await window.MywebSupabase.fetchDailyChallenges(date);
+        if (challenges.length > 0) {
+          return { date, challenges };
+        }
+      } catch (error) {
+        console.warn("Daily fallback lookup failed:", date, error);
+      }
+    }
+
+    return null;
   }
 
   elements.prev.addEventListener("click", () => {
