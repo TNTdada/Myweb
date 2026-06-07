@@ -16,7 +16,7 @@
   --shadow: 0 18px 40px rgba(23, 32, 51, 0.12);
   --board-line: #8997aa;
   --cell: linear-gradient(145deg, #f9fbff, #cbd6e5);
-  --cell-open: #edf2f7;
+  --cell-open: #d4dee9;
   --mine-bg: #991b1b;
   --hit-bg: #dc2626;
   --button-bg: rgba(255, 255, 255, 0.8);
@@ -102,7 +102,9 @@ a {
 }
 
 .home-page,
-.game-page {
+.game-page,
+.auth-page,
+.profile-page {
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -174,6 +176,8 @@ h2 {
 }
 
 .difficulty-panel {
+  position: relative;
+  margin-right: 46px;
   padding: 26px;
 }
 
@@ -183,9 +187,194 @@ h2 {
   line-height: 1.6;
 }
 
+.compact-heading p {
+  margin-bottom: 14px;
+}
+
 .difficulty-form {
   display: grid;
   gap: 12px;
+}
+
+.backend-panel {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.backend-status-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.backend-status-list div {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.backend-status-list dt {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.backend-status-list dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.nickname-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.nickname-field input {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 12px;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.auth-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.backend-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.backend-actions .ghost-button {
+  width: 100%;
+  min-height: 40px;
+}
+
+.account-widget {
+  position: fixed;
+  top: 18px;
+  right: 72px;
+  z-index: 30;
+  width: 92px;
+}
+
+.account-button {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: var(--ink);
+  background: var(--button-bg);
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.12);
+  cursor: pointer;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-button:hover {
+  border-color: rgba(15, 118, 110, 0.45);
+}
+
+.account-panel {
+  width: min(300px, calc(100vw - 36px));
+  margin-top: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+  box-shadow: var(--shadow);
+  transform: translateX(calc(92px - 100%));
+}
+
+.account-panel-heading {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.account-panel-heading strong {
+  overflow-wrap: anywhere;
+}
+
+.account-panel-heading span,
+.form-field span,
+.profile-summary span,
+.stat-card span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.mini-stats div,
+.profile-summary div,
+.stat-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+}
+
+.mini-stats div {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+}
+
+.mini-stats dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.mini-stats dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.account-actions,
+.auth-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.daily-button {
+  position: absolute;
+  top: 50%;
+  right: -48px;
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(15, 118, 110, 0.28);
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--accent);
+  box-shadow: 0 16px 30px rgba(15, 118, 110, 0.24);
+  font-weight: 700;
+  line-height: 1.25;
+  cursor: not-allowed;
+  transform: translateY(-50%);
 }
 
 .difficulty-card {
@@ -332,6 +521,7 @@ h2 {
 
 .board-wrap {
   width: 100%;
+  max-height: max(360px, calc(100vh - 150px));
   overflow: auto;
   padding-bottom: 4px;
 }
@@ -461,9 +651,158 @@ h2 {
   margin: 0;
 }
 
+.auth-shell,
+.profile-shell {
+  width: min(960px, 100%);
+}
+
+.auth-shell {
+  min-height: calc(100vh - 56px);
+  display: grid;
+  place-items: center;
+}
+
+.auth-card,
+.profile-summary,
+.stats-grid,
+.profile-message {
+  width: 100%;
+}
+
+.auth-card {
+  max-width: 560px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 34px;
+  background: var(--surface-glass);
+  box-shadow: var(--shadow);
+}
+
+.auth-card h1 {
+  margin-bottom: 12px;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.form-field {
+  display: grid;
+  gap: 7px;
+}
+
+.form-field input {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 12px;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.form-field input:disabled {
+  color: var(--muted);
+  background: var(--surface-strong);
+  cursor: not-allowed;
+}
+
+.form-field input:focus {
+  outline: 3px solid rgba(15, 118, 110, 0.22);
+  border-color: rgba(15, 118, 110, 0.6);
+}
+
+.field-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.captcha-wrap {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.form-message,
+.profile-message {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.back-link {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.profile-shell {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-height: calc(100vh - 56px);
+}
+
+.profile-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.profile-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4.4rem);
+}
+
+.profile-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+}
+
+.profile-actions .ghost-button {
+  flex: 0 0 auto;
+}
+
+.profile-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-summary div,
+.stat-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.profile-summary strong,
+.stat-card strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat-card strong {
+  font-size: 1.55rem;
+}
+
 @media (max-width: 820px) {
   .home-page,
-  .game-page {
+  .game-page,
+  .auth-page,
+  .profile-page {
     padding: 18px;
   }
 
@@ -474,8 +813,36 @@ h2 {
     height: 40px;
   }
 
+  .account-widget {
+    top: 12px;
+    right: 62px;
+    width: 92px;
+  }
+
+  .account-button {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+
+  .account-panel {
+    width: min(300px, calc(100vw - 24px));
+    transform: translateX(calc(92px - 100%));
+  }
+
   .home-shell {
     grid-template-columns: 1fr;
+  }
+
+  .difficulty-panel {
+    margin-right: 0;
+    padding-right: 100px;
+  }
+
+  .daily-button {
+    right: 16px;
+    width: 72px;
+    height: 72px;
+    font-size: 0.88rem;
   }
 
   .home-hero {
@@ -521,6 +888,15 @@ h2 {
     min-height: auto;
   }
 
+  .board-wrap {
+    max-height: max(340px, calc(100vh - 240px));
+  }
+
+  .profile-summary,
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   :root {
     --cell-size: 30px;
   }
@@ -528,14 +904,43 @@ h2 {
 
 @media (max-width: 480px) {
   .home-page,
-  .game-page {
+  .game-page,
+  .auth-page,
+  .profile-page {
     padding: 12px;
   }
 
   .home-hero,
   .difficulty-panel,
-  .board-section {
+  .board-section,
+  .auth-card {
     padding: 16px;
+  }
+
+  .difficulty-panel {
+    padding-right: 16px;
+    padding-bottom: 96px;
+  }
+
+  .daily-button {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    transform: none;
+  }
+
+  .profile-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-actions,
+  .profile-actions .ghost-button {
+    width: 100%;
+  }
+
+  .profile-actions {
+    flex-direction: column;
   }
 
   .game-status {
@@ -548,6 +953,19 @@ h2 {
 
   .dialog-actions {
     grid-template-columns: 1fr;
+  }
+
+  .auth-fields,
+  .backend-actions,
+  .auth-actions,
+  .account-actions,
+  .profile-summary,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .board-wrap {
+    max-height: max(300px, calc(100vh - 300px));
   }
 
   :root {

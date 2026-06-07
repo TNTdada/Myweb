@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 | 扫雷</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/login.js" defer></script>
+</head>
+<body class="auth-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="auth-shell">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <p class="eyebrow">Minefield Account</p>
+      <h1 id="auth-title">登录</h1>
+      <p class="hero-copy">登录后会记录游戏数据，并参与后续排行榜。</p>
+
+      <form class="auth-form" id="loginForm">
+        <label class="form-field">
+          <span>账户名</span>
+          <input id="loginUsernameInput" type="text" autocomplete="username" maxlength="20" placeholder="3-20 位字母数字下划线">
+        </label>
+        <label class="form-field">
+          <span>密码</span>
+          <input id="loginPasswordInput" type="password" autocomplete="current-password" minlength="6">
+        </label>
+        <p class="form-message" id="loginMessage">请输入账户名和密码。</p>
+        <div class="auth-actions">
+          <button class="primary-button" id="signInButton" type="button">登录</button>
+          <a class="ghost-button" href="register.html">注册</a>
+        </div>
+      </form>
+
+      <a class="ghost-button back-link" href="index.html">返回首页</a>
+    </section>
+  </main>
+</body>
+</html>

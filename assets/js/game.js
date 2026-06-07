@@ -4,7 +4,7 @@
   const DIFFICULTIES = {
     beginner: { label: "初级", rows: 9, cols: 9, mines: 10, multiplier: 1 },
     intermediate: { label: "中级", rows: 16, cols: 16, mines: 40, multiplier: 1.5 },
-    expert: { label: "高级", rows: 16, cols: 30, mines: 99, multiplier: 2 }
+    expert: { label: "高级", rows: 30, cols: 16, mines: 99, multiplier: 2 }
   };
 
   const stateLabels = {
@@ -44,7 +44,9 @@
   let longPressTimer = null;
   let longPressTriggered = false;
   let longPressStart = null;
+  let longPressSuppressUntil = 0;
   let boardPressStart = null;
+  let resizeFrame = null;
 
   function createEmptyBoard() {
     board = Array.from({ length: config.rows }, (_, row) =>
@@ -77,6 +79,7 @@
       elements.resultDialog.close();
     }
     renderBoard();
+    updateBoardScale();
   }
 
   function renderBoard() {
@@ -337,6 +340,31 @@
     elements.finalTime.textContent = String(elapsedSeconds);
     elements.safeCells.textContent = `${revealedSafeCells}/${config.rows * config.cols - config.mines}`;
     elements.resultDialog.showModal();
+    saveGameResult(result, score);
+  }
+
+  async function saveGameResult(result, score) {
+    if (!window.MywebSupabase) {
+      return;
+    }
+
+    try {
+      const supabase = window.MywebSupabase.getClient();
+      const user = await window.MywebSupabase.getCurrentUser();
+      if (!user) {
+        return;
+      }
+
+      await supabase.from("game_results").insert({
+        user_id: user.id,
+        difficulty: selectedDifficulty && DIFFICULTIES[selectedDifficulty] ? selectedDifficulty : "beginner",
+        score,
+        won: result === "won",
+        elapsed_seconds: elapsedSeconds
+      });
+    } catch (error) {
+      console.warn("Game result was not saved:", error);
+    }
   }
 
   function showStoredResult() {
@@ -374,6 +402,30 @@
     }
   }
 
+  function updateBoardScale() {
+    const maxCellSize = 34;
+    const minCellSize = 22;
+    const gridGap = 1;
+    const boardBorder = 4;
+    const availableWidth = elements.boardWrap.clientWidth - 8;
+    const widthForCells = availableWidth - boardBorder - gridGap * (config.cols - 1);
+    const fittedCellSize = Math.floor(widthForCells / config.cols);
+    const cellSize = Math.max(minCellSize, Math.min(maxCellSize, fittedCellSize));
+
+    elements.board.style.setProperty("--cell-size", `${cellSize}px`);
+  }
+
+  function scheduleBoardScaleUpdate() {
+    if (resizeFrame !== null) {
+      window.cancelAnimationFrame(resizeFrame);
+    }
+
+    resizeFrame = window.requestAnimationFrame(() => {
+      resizeFrame = null;
+      updateBoardScale();
+    });
+  }
+
   function clearLongPressTimer() {
     if (longPressTimer !== null) {
       window.clearTimeout(longPressTimer);
@@ -389,8 +441,12 @@
     return Math.hypot(event.clientX - start.x, event.clientY - start.y);
   }
 
+  function isLongPressSuppressed() {
+    return Date.now() < longPressSuppressUntil;
+  }
+
   elements.board.addEventListener("click", (event) => {
-    if (longPressTriggered) {
+    if (longPressTriggered || isLongPressSuppressed()) {
       longPressTriggered = false;
       return;
     }
@@ -399,7 +455,7 @@
 
   elements.board.addEventListener("contextmenu", (event) => {
     event.preventDefault();
-    if (longPressTriggered) {
+    if (longPressTriggered || isLongPressSuppressed()) {
       return;
     }
     toggleFlag(getCellFromEvent(event));
@@ -422,6 +478,7 @@
     };
     longPressTimer = window.setTimeout(() => {
       longPressTriggered = true;
+      longPressSuppressUntil = Date.now() + 1000;
       toggleFlag(cell);
       if (navigator.vibrate) {
         navigator.vibrate(15);
@@ -485,6 +542,7 @@
     boardPressStart = null;
   });
 
+  window.addEventListener("resize", scheduleBoardScaleUpdate);
   elements.restartButton.addEventListener("click", initGame);
   elements.playAgainButton.addEventListener("click", initGame);
 

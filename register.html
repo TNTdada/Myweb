@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册 | 扫雷</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script>
+    window.mywebCaptchaToken = "";
+    window.onTurnstileSuccess = function (token) {
+      window.mywebCaptchaToken = token;
+    };
+    window.onTurnstileExpired = function () {
+      window.mywebCaptchaToken = "";
+    };
+    window.onTurnstileError = function () {
+      window.mywebCaptchaToken = "";
+    };
+  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/register.js" defer></script>
+</head>
+<body class="auth-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="auth-shell">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <p class="eyebrow">Minefield Account</p>
+      <h1 id="auth-title">注册</h1>
+      <p class="hero-copy">创建账户后会记录游戏数据，并参与后续排行榜。</p>
+
+      <form class="auth-form" id="authForm">
+        <label class="form-field">
+          <span>账户名</span>
+          <input id="usernameInput" type="text" autocomplete="username" maxlength="20" placeholder="3-20 位字母数字下划线">
+          <small class="field-note">账户名注册后不可修改。</small>
+        </label>
+        <label class="form-field">
+          <span>昵称</span>
+          <input id="nicknameInput" type="text" maxlength="24" placeholder="显示在页面上的名字">
+        </label>
+        <label class="form-field">
+          <span>密码</span>
+          <input id="passwordInput" type="password" autocomplete="new-password" minlength="6">
+        </label>
+        <label class="form-field">
+          <span>确认密码</span>
+          <input id="passwordConfirmInput" type="password" autocomplete="new-password" minlength="6">
+        </label>
+        <div class="captcha-wrap" aria-label="验证码">
+          <div
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAADgR4A_jFW1Wa4w9"
+            data-callback="onTurnstileSuccess"
+            data-expired-callback="onTurnstileExpired"
+            data-error-callback="onTurnstileError">
+          </div>
+        </div>
+        <p class="form-message" id="authMessage">请输入信息后注册。</p>
+        <div class="auth-actions">
+          <button class="primary-button" id="signUpButton" type="button">注册</button>
+          <a class="ghost-button" href="login.html">去登录</a>
+        </div>
+      </form>
+
+      <a class="ghost-button back-link" href="index.html">返回首页</a>
+    </section>
+  </main>
+</body>
+</html>

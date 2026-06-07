@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>修改信息 | 扫雷</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/editProfile.js" defer></script>
+</head>
+<body class="auth-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="auth-shell">
+    <section class="auth-card" aria-labelledby="edit-title">
+      <p class="eyebrow">Player Settings</p>
+      <h1 id="edit-title">修改信息</h1>
+      <p class="hero-copy">账户名不可修改，可以更新昵称或设置新密码。</p>
+
+      <form class="auth-form" id="editProfileForm">
+        <label class="form-field">
+          <span>当前账户名</span>
+          <input id="editUsernameInput" type="text" disabled>
+        </label>
+        <label class="form-field">
+          <span>昵称</span>
+          <input id="editNicknameInput" type="text" maxlength="24" placeholder="显示在页面上的名字">
+        </label>
+        <label class="form-field">
+          <span>新密码</span>
+          <input id="editPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="不修改可留空">
+        </label>
+        <label class="form-field">
+          <span>确认新密码</span>
+          <input id="editPasswordConfirmInput" type="password" autocomplete="new-password" minlength="6" placeholder="不修改可留空">
+        </label>
+        <p class="form-message" id="editProfileMessage">正在读取账户信息。</p>
+        <div class="auth-actions">
+          <button class="primary-button" id="saveProfileButton" type="button">保存修改</button>
+          <a class="ghost-button" href="profile.html">返回详情</a>
+        </div>
+      </form>
+
+      <a class="ghost-button back-link" href="index.html">返回首页</a>
+    </section>
+  </main>
+</body>
+</html>

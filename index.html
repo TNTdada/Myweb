@@ -5,12 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>扫雷 | Minefield</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/account.js" defer></script>
 </head>
 <body class="home-page">
   <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
     <span data-theme-icon>☾</span>
   </button>
+  <div class="account-widget">
+    <button class="account-button" id="accountButton" type="button">未登录</button>
+    <section class="account-panel" id="accountPanel" hidden aria-label="账户数据面板">
+      <div class="account-panel-heading">
+        <strong id="accountPanelName">未登录</strong>
+        <span id="accountPanelStatus">登录后记录游戏数据</span>
+      </div>
+      <dl class="mini-stats">
+        <div>
+          <dt>游戏局数</dt>
+          <dd id="miniGames">0</dd>
+        </div>
+        <div>
+          <dt>胜场</dt>
+          <dd id="miniWins">0</dd>
+        </div>
+        <div>
+          <dt>最高分</dt>
+          <dd id="miniBestScore">0</dd>
+        </div>
+        <div>
+          <dt>总时长</dt>
+          <dd id="miniTotalTime">0s</dd>
+        </div>
+      </dl>
+      <div class="account-actions">
+        <a class="ghost-button" href="profile.html">详细信息</a>
+        <button class="ghost-button" id="signOutButton" type="button">退出</button>
+      </div>
+    </section>
+  </div>
 
   <main class="home-shell">
     <section class="home-hero" aria-labelledby="home-title">
@@ -24,6 +58,8 @@
         <h2 id="difficulty-title">选择难度</h2>
         <p>首次点击后开始计时，并保证第一格安全。</p>
       </div>
+
+      <button class="daily-button" type="button" disabled aria-label="每日挑战暂未开放">每日<br>挑战</button>
 
       <form class="difficulty-form" id="difficultyForm">
         <label class="difficulty-card">
@@ -43,7 +79,6 @@
           <span class="difficulty-name">高级</span>
           <span class="difficulty-meta">30 x 16 · 99 雷</span>
         </label>
-
         <button class="primary-button" type="submit">开始游戏</button>
       </form>
     </section>

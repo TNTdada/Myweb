@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人详情 | 扫雷</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/profile.js" defer></script>
+</head>
+<body class="profile-page">
+  <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
+    <span data-theme-icon>☾</span>
+  </button>
+
+  <main class="profile-shell">
+    <header class="profile-header">
+      <div>
+        <p class="eyebrow">Player Profile</p>
+        <h1 id="profileName">个人详情</h1>
+      </div>
+      <div class="profile-actions">
+        <a class="ghost-button" href="edit-profile.html">修改信息</a>
+        <a class="ghost-button" href="index.html">返回首页</a>
+      </div>
+    </header>
+
+    <section class="profile-summary">
+      <div>
+        <span>账户名</span>
+        <strong id="profileUsername">-</strong>
+      </div>
+      <div>
+        <span>注册时间</span>
+        <strong id="profileCreatedAt">-</strong>
+      </div>
+      <div>
+        <span>上次登录</span>
+        <strong id="profileLastSignIn">-</strong>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="游戏统计">
+      <div class="stat-card"><span>游戏局数</span><strong id="statGames">0</strong></div>
+      <div class="stat-card"><span>胜场</span><strong id="statWins">0</strong></div>
+      <div class="stat-card"><span>胜率</span><strong id="statWinRate">0%</strong></div>
+      <div class="stat-card"><span>最高分</span><strong id="statBestScore">0</strong></div>
+      <div class="stat-card"><span>平均分</span><strong id="statAvgScore">0</strong></div>
+      <div class="stat-card"><span>总时长</span><strong id="statTotalTime">0s</strong></div>
+      <div class="stat-card"><span>平均用时</span><strong id="statAvgTime">0s</strong></div>
+      <div class="stat-card"><span>最佳用时</span><strong id="statBestTime">-</strong></div>
+      <div class="stat-card"><span>初级局数</span><strong id="statBeginner">0</strong></div>
+      <div class="stat-card"><span>中级局数</span><strong id="statIntermediate">0</strong></div>
+      <div class="stat-card"><span>高级局数</span><strong id="statExpert">0</strong></div>
+      <div class="stat-card"><span>最近游玩</span><strong id="statLastPlayed">-</strong></div>
+    </section>
+
+    <p class="profile-message" id="profileMessage">正在读取数据</p>
+  </main>
+</body>
+</html>
