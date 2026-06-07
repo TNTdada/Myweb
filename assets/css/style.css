@@ -54,6 +54,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   min-height: 100vh;
   margin: 0;
@@ -578,6 +582,13 @@ h2 {
   cursor: default;
 }
 
+.cell.inactive {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14);
+  cursor: default;
+  pointer-events: none;
+}
+
 .cell.flagged {
   color: var(--danger);
   font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", Arial, sans-serif;
@@ -595,6 +606,12 @@ h2 {
 
 .cell.hit {
   background: var(--hit-bg);
+}
+
+.cell.treasure {
+  color: #f59e0b;
+  background: var(--cell-open);
+  font-size: calc(var(--cell-size) * 0.58);
 }
 
 .n1 { color: #2563eb; }

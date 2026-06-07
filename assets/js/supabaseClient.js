@@ -158,6 +158,85 @@
     return data || [];
   }
 
+  async function fetchDailyChallengeById(id) {
+    const supabase = getClient();
+    const { data, error } = await supabase
+      .from("daily_challenges")
+      .select("id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published")
+      .eq("id", id)
+      .eq("is_published", true)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+    if (!data) {
+      throw new Error("挑战不存在或尚未发布");
+    }
+
+    return data;
+  }
+
+  async function saveDailyResult(result) {
+    const supabase = getClient();
+    const user = await getCurrentUser();
+    if (!user) {
+      return { saved: false, reason: "not_signed_in" };
+    }
+
+    const row = {
+      user_id: user.id,
+      challenge_id: result.challenge.id,
+      mode: result.challenge.mode,
+      difficulty_tier: result.challenge.difficultyTier,
+      score: Number(result.score || 0),
+      won: Boolean(result.won),
+      elapsed_seconds: Number(result.elapsedSeconds || 0),
+      moves_used: Number(result.movesUsed || 0),
+      target_progress: Number(result.targetProgress || 0),
+      completed_at: new Date().toISOString()
+    };
+
+    const { data: existing, error: readError } = await supabase
+      .from("daily_results")
+      .select("id, score, won, elapsed_seconds")
+      .eq("user_id", user.id)
+      .eq("challenge_id", result.challenge.id)
+      .maybeSingle();
+
+    if (readError) {
+      throw readError;
+    }
+
+    if (existing) {
+      const shouldUpdate =
+        row.score > Number(existing.score || 0) ||
+        (row.score === Number(existing.score || 0) && row.won && !existing.won) ||
+        (row.score === Number(existing.score || 0) && row.won === existing.won && row.elapsed_seconds < Number(existing.elapsed_seconds || Infinity));
+
+      if (!shouldUpdate) {
+        return { saved: false, reason: "existing_result_is_better" };
+      }
+
+      const { error: updateError } = await supabase
+        .from("daily_results")
+        .update(row)
+        .eq("id", existing.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+      return { saved: true, reason: "updated" };
+    }
+
+    const { error: insertError } = await supabase.from("daily_results").insert(row);
+    if (insertError) {
+      throw insertError;
+    }
+
+    return { saved: true, reason: "inserted" };
+  }
+
   function buildGameStats(rows) {
     const games = rows.length;
     const wins = rows.filter((row) => row.won).length;
@@ -193,6 +272,8 @@
     friendlyError,
     fetchProfile,
     fetchGameStats,
-    fetchDailyChallenges
+    fetchDailyChallenges,
+    fetchDailyChallengeById,
+    saveDailyResult
   };
 })();

@@ -66,16 +66,27 @@ export function applyModeAction(challenge, state, action) {
     return { ...next, status: "failed", reason: "该模式不允许此操作" };
   }
 
-  next.movesUsed += actionType === "reveal" || actionType === "flag" ? 1 : 0;
+  const flagChanged =
+    actionType !== "flag" ||
+    typeof action.flagged !== "boolean" ||
+    typeof action.wasFlagged !== "boolean" ||
+    action.flagged !== action.wasFlagged;
+  next.movesUsed += actionType === "reveal" || (actionType === "flag" && flagChanged) ? 1 : 0;
 
   if (challenge.mode === GAME_MODES.DETONATION) {
     if (actionType === "reveal" && action.isMine) {
       next.detonatedMines += 1;
     }
   } else if (challenge.mode === GAME_MODES.FLAGS) {
-    if (actionType === "flag" && action.isMine) {
+    if (typeof action.correctFlags === "number") {
+      next.correctFlags = action.correctFlags;
+    } else if (actionType === "flag" && action.isMine && action.flagged !== false) {
       next.correctFlags += 1;
-    } else if (actionType === "flag") {
+    }
+
+    if (typeof action.wrongFlags === "number") {
+      next.wrongFlags = action.wrongFlags;
+    } else if (actionType === "flag" && !action.isMine && action.flagged !== false) {
       next.wrongFlags += 1;
     }
   } else {
@@ -121,11 +132,34 @@ export function evaluateModeState(challenge, state) {
     return { ...next, status: "won", reason: "插旗目标完成" };
   }
 
+  const impossibleReason = getImpossibleReason(challenge, next);
+  if (impossibleReason) {
+    return { ...next, status: "failed", reason: impossibleReason };
+  }
+
   if (challenge.moveLimit && next.movesUsed >= challenge.moveLimit) {
     return { ...next, status: "failed", reason: "步数已用完" };
   }
 
   return next;
+}
+
+function getImpossibleReason(challenge, state) {
+  if (!challenge.moveLimit) {
+    return "";
+  }
+
+  const remainingMoves = challenge.moveLimit - state.movesUsed;
+  if (challenge.mode === GAME_MODES.DETONATION) {
+    const remainingTargets = challenge.targetCount - state.detonatedMines;
+    return remainingMoves < remainingTargets ? "剩余步数不足以完成引爆目标" : "";
+  }
+  if (challenge.mode === GAME_MODES.FLAGS) {
+    const remainingTargets = challenge.targetCount - state.correctFlags;
+    return remainingMoves < remainingTargets ? "剩余步数不足以完成插旗目标" : "";
+  }
+
+  return "";
 }
 
 export function calculateChallengeScore(challenge, state, elapsedSeconds) {

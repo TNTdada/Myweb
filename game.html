@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>扫雷游戏</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260608d">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="assets/js/theme.js" defer></script>
-  <script src="assets/js/supabaseClient.js" defer></script>
+  <script src="assets/js/supabaseClient.js?v=20260608d" defer></script>
   <script src="assets/js/account.js" defer></script>
-  <script src="assets/js/game.js" defer></script>
+  <script src="assets/js/game.js?v=20260608d" defer></script>
 </head>
 <body class="game-page">
   <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
@@ -70,6 +70,22 @@
             <span class="status-label">状态</span>
             <strong id="stateText">准备中</strong>
           </div>
+          <div class="status-item" id="modeItem" hidden>
+            <span class="status-label">模式</span>
+            <strong id="modeText">经典</strong>
+          </div>
+          <div class="status-item" id="targetItem" hidden>
+            <span class="status-label">目标</span>
+            <strong id="targetText">0/0</strong>
+          </div>
+          <div class="status-item" id="movesItem" hidden>
+            <span class="status-label">剩余步数</span>
+            <strong id="movesText">不限</strong>
+          </div>
+          <div class="status-item" id="mistakeItem" hidden>
+            <span class="status-label">容错</span>
+            <strong id="mistakeText">0/0</strong>
+          </div>
         </section>
 
         <div class="sidebar-actions">
@@ -100,7 +116,7 @@
           <dd><span id="finalTime">0</span>s</dd>
         </div>
         <div>
-          <dt>翻开安全格</dt>
+          <dt id="safeCellsLabel">翻开安全格</dt>
           <dd id="safeCells">0</dd>
         </div>
       </dl>

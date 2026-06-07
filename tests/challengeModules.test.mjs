@@ -56,4 +56,15 @@ flags = applyModeAction({
 }, flags, { type: "flag", isMine: true });
 assert.equal(flags.status, "failed");
 
+let impossibleDetonation = createModeState({
+  mode: GAME_MODES.DETONATION
+});
+impossibleDetonation = applyModeAction({
+  mode: GAME_MODES.DETONATION,
+  targetCount: 3,
+  moveLimit: 3
+}, impossibleDetonation, { type: "reveal", isMine: false });
+assert.equal(impossibleDetonation.status, "failed");
+assert.equal(impossibleDetonation.reason, "剩余步数不足以完成引爆目标");
+
 console.log("challenge module tests passed");

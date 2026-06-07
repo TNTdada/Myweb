@@ -106,11 +106,10 @@
       detailItem("地图", shapeLabels[challenge.shape_type] || challenge.shape_type)
     );
 
-    const action = document.createElement("button");
+    const action = document.createElement("a");
     action.className = "ghost-button";
-    action.type = "button";
-    action.disabled = true;
-    action.textContent = "即将开放";
+    action.href = `game.html?challenge=${encodeURIComponent(challenge.id)}`;
+    action.textContent = "开始挑战";
 
     card.append(title, meta, details, action);
     return card;

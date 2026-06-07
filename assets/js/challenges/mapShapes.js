@@ -1,4 +1,4 @@
-import { randomInt, shuffle } from "./rng.js";
+import { shuffle } from "./rng.js";
 
 export const SHAPE_TYPES = {
   RECTANGLE: "rectangle",
@@ -84,22 +84,24 @@ export function createCornerBlocks(rows, cols, rng) {
   const activeSet = new Set();
   const blockRows = Math.max(3, Math.floor(rows * 0.44));
   const blockCols = Math.max(3, Math.floor(cols * 0.44));
-  const bridgeRow = randomInt(rng, blockRows - 1, rows - blockRows);
-  const bridgeCol = randomInt(rng, blockCols - 1, cols - blockCols);
+  const leftBridgeCol = blockCols - 1;
+  const rightBridgeCol = cols - blockCols;
+  const topBridgeRow = blockRows - 1;
+  const bottomBridgeRow = rows - blockRows;
 
   addBlock(activeSet, 0, 0, blockRows, blockCols);
   addBlock(activeSet, 0, cols - blockCols, blockRows, cols);
   addBlock(activeSet, rows - blockRows, 0, rows, blockCols);
   addBlock(activeSet, rows - blockRows, cols - blockCols, rows, cols);
 
-  for (let col = blockCols - 1; col <= cols - blockCols; col += 1) {
-    activeSet.add(cellKey(bridgeRow, col));
-    activeSet.add(cellKey(Math.min(rows - 1, bridgeRow + 1), col));
+  for (let col = leftBridgeCol; col <= rightBridgeCol; col += 1) {
+    activeSet.add(cellKey(topBridgeRow, col));
+    activeSet.add(cellKey(bottomBridgeRow, col));
   }
 
-  for (let row = blockRows - 1; row <= rows - blockRows; row += 1) {
-    activeSet.add(cellKey(row, bridgeCol));
-    activeSet.add(cellKey(row, Math.min(cols - 1, bridgeCol + 1)));
+  for (let row = topBridgeRow; row <= bottomBridgeRow; row += 1) {
+    activeSet.add(cellKey(row, leftBridgeCol));
+    activeSet.add(cellKey(row, rightBridgeCol));
   }
 
   return Array.from(activeSet).map((key) => ({ ...parseCellKey(key), key }));
