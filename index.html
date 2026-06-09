@@ -4,48 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>扫雷 | Minefield</title>
-  <link rel="stylesheet" href="assets/css/style.css?v=20260608b">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260609g">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="assets/js/theme.js" defer></script>
-  <script src="assets/js/supabaseClient.js?v=20260608b" defer></script>
-  <script src="assets/js/account.js?v=20260608b" defer></script>
+  <script src="assets/js/supabaseClient.js?v=20260608e" defer></script>
+  <script src="assets/js/feedback.js?v=20260609a" defer></script>
+  <script src="assets/js/account.js?v=20260609d" defer></script>
 </head>
 <body class="home-page">
   <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
     <span data-theme-icon>☾</span>
   </button>
-  <div class="account-widget">
-    <button class="account-button" id="accountButton" type="button">未登录</button>
-    <section class="account-panel" id="accountPanel" hidden aria-label="账户数据面板">
-      <div class="account-panel-heading">
-        <strong id="accountPanelName">未登录</strong>
-        <span id="accountPanelStatus">登录后记录游戏数据</span>
-      </div>
-      <dl class="mini-stats">
-        <div>
-          <dt>游戏局数</dt>
-          <dd id="miniGames">0</dd>
-        </div>
-        <div>
-          <dt>胜场</dt>
-          <dd id="miniWins">0</dd>
-        </div>
-        <div>
-          <dt>最高分</dt>
-          <dd id="miniBestScore">0</dd>
-        </div>
-        <div>
-          <dt>总时长</dt>
-          <dd id="miniTotalTime">0s</dd>
-        </div>
-      </dl>
-      <div class="account-actions">
-        <a class="ghost-button" href="profile.html">详细信息</a>
-        <button class="ghost-button" id="signOutButton" type="button">退出</button>
-      </div>
-    </section>
-  </div>
-
   <main class="home-shell">
     <section class="home-hero" aria-labelledby="home-title">
       <p class="eyebrow">Classic Minesweeper</p>

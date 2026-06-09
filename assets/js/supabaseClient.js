@@ -123,6 +123,39 @@
     return data;
   }
 
+  function calculateLevel(totalXp) {
+    const xp = Math.max(0, Number(totalXp || 0));
+    const xpPerLevel = 3000;
+    const level = Math.floor(xp / xpPerLevel) + 1;
+    const currentLevelXp = xp % xpPerLevel;
+
+    return {
+      totalXp: xp,
+      level,
+      currentLevelXp,
+      xpToNextLevel: xpPerLevel - currentLevelXp,
+      xpPerLevel
+    };
+  }
+
+  async function fetchPlayerXpSummary(userId) {
+    const supabase = getClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("total_xp")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      if (error.code === "42703" || error.code === "PGRST204" || String(error.message || "").includes("total_xp")) {
+        return { ...calculateLevel(0), isReady: false };
+      }
+      throw error;
+    }
+
+    return { ...calculateLevel(data ? data.total_xp : 0), isReady: true };
+  }
+
   async function fetchGameStats(userId) {
     const supabase = getClient();
     const { data, error } = await supabase
@@ -144,12 +177,24 @@
 
   async function fetchDailyChallenges(dateString) {
     const supabase = getClient();
-    const { data, error } = await supabase
+    const columns = "id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published, xp_reward, lives, time_limit_enabled, time_limit_seconds, initial_reveal_count, initial_reveal_type, extra_rules";
+    let { data, error } = await supabase
       .from("daily_challenges")
-      .select("id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published")
+      .select(columns)
       .eq("challenge_date", dateString)
       .eq("is_published", true)
       .order("slot_index", { ascending: true });
+
+    if (error && isMissingDailyXpColumn(error)) {
+      const fallback = await supabase
+        .from("daily_challenges")
+        .select("id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published")
+        .eq("challenge_date", dateString)
+        .eq("is_published", true)
+        .order("slot_index", { ascending: true });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       throw error;
@@ -160,12 +205,24 @@
 
   async function fetchDailyChallengeById(id) {
     const supabase = getClient();
-    const { data, error } = await supabase
+    const columns = "id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published, xp_reward, lives, time_limit_enabled, time_limit_seconds, initial_reveal_count, initial_reveal_type, extra_rules";
+    let { data, error } = await supabase
       .from("daily_challenges")
-      .select("id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published")
+      .select(columns)
       .eq("id", id)
       .eq("is_published", true)
       .maybeSingle();
+
+    if (error && isMissingDailyXpColumn(error)) {
+      const fallback = await supabase
+        .from("daily_challenges")
+        .select("id, challenge_date, slot_index, title, difficulty, difficulty_tier, mode, rows, cols, mines, shape_type, target_count, move_limit, mine_mistake_limit, seed, is_published")
+        .eq("id", id)
+        .eq("is_published", true)
+        .maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       throw error;
@@ -177,6 +234,132 @@
     return data;
   }
 
+  function isMissingDailyXpColumn(error) {
+    const message = String(error && error.message || "");
+    return error && (error.code === "42703" || error.code === "PGRST204" || /xp_reward|lives|time_limit_enabled|time_limit_seconds|initial_reveal|extra_rules/.test(message));
+  }
+
+  async function fetchDailyProgress(challengeIds) {
+    if (!challengeIds || challengeIds.length === 0) {
+      return new Map();
+    }
+
+    const supabase = getClient();
+    const user = await getCurrentUser();
+    if (!user) {
+      return new Map();
+    }
+
+    let { data, error } = await supabase
+      .from("daily_results")
+      .select("challenge_id, completed, xp_claimed, won, score, elapsed_seconds, attempts, best_time")
+      .eq("user_id", user.id)
+      .in("challenge_id", challengeIds);
+
+    if (error && (error.code === "42703" || error.code === "PGRST204")) {
+      const fallback = await supabase
+        .from("daily_results")
+        .select("challenge_id, won, score, elapsed_seconds")
+        .eq("user_id", user.id)
+        .in("challenge_id", challengeIds);
+      data = (fallback.data || []).map((row) => ({
+        ...row,
+        completed: Boolean(row.won),
+        xp_claimed: false,
+        attempts: 1,
+        best_time: row.elapsed_seconds
+      }));
+      error = fallback.error;
+    }
+
+    if (error) {
+      console.warn("Daily progress was not loaded:", error);
+      return new Map();
+    }
+
+    return new Map((data || []).map((row) => [row.challenge_id, row]));
+  }
+
+  async function fetchDailyChallengeDates(monthDateString) {
+    const supabase = getClient();
+    const date = new Date(`${monthDateString}T00:00:00`);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const startString = `${year}-${String(month).padStart(2, "0")}-01`;
+    const endString = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+
+    const { data, error } = await supabase
+      .from("daily_challenges")
+      .select("id, challenge_date")
+      .gte("challenge_date", startString)
+      .lte("challenge_date", endString)
+      .eq("is_published", true);
+
+    if (error) {
+      throw error;
+    }
+
+    const byDate = new Map();
+    for (const row of data || []) {
+      const key = row.challenge_date;
+      if (!byDate.has(key)) {
+        byDate.set(key, []);
+      }
+      byDate.get(key).push(row.id);
+    }
+
+    const user = await getCurrentUser();
+    if (!user) {
+      return new Map(Array.from(byDate, ([key, ids]) => [key, { ids, completed: false }]));
+    }
+
+    const allIds = Array.from(byDate.values()).flat();
+    if (allIds.length === 0) {
+      return new Map();
+    }
+
+    const progress = await fetchDailyProgress(allIds);
+    return new Map(Array.from(byDate, ([key, ids]) => [
+      key,
+      {
+        ids,
+        completed: ids.length > 0 && ids.every((id) => {
+          const item = progress.get(id);
+          return item && (item.completed || item.won);
+        })
+      }
+    ]));
+  }
+
+  async function fetchDailyResultRows(userId) {
+    const supabase = getClient();
+    let { data, error } = await supabase
+      .from("daily_results")
+      .select("challenge_id, challenge_date, challenge_mode, challenge_difficulty_tier, mode, difficulty_tier, score, won, completed, elapsed_seconds, target_progress, attempts, best_time, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error && (error.code === "42703" || error.code === "PGRST204")) {
+      const fallback = await supabase
+        .from("daily_results")
+        .select("challenge_id, mode, difficulty_tier, score, won, elapsed_seconds, target_progress, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      data = fallback.data;
+      error = fallback.error;
+    }
+
+    if (error) {
+      if (error.code === "42P01" || error.code === "PGRST205") {
+        return [];
+      }
+      throw error;
+    }
+
+    return data || [];
+  }
+
   async function saveDailyResult(result) {
     const supabase = getClient();
     const user = await getCurrentUser();
@@ -184,16 +367,64 @@
       return { saved: false, reason: "not_signed_in" };
     }
 
+    if (typeof supabase.rpc === "function") {
+      const rpcResult = await supabase.rpc("complete_daily_challenge", {
+        p_challenge_id: result.challenge.id,
+        p_score: Number(result.score || 0),
+        p_won: Boolean(result.won),
+        p_elapsed_seconds: Number(result.elapsedSeconds || 0),
+        p_moves_used: Number(result.movesUsed || 0),
+        p_target_progress: Number(result.targetProgress || 0),
+        p_session_config: result.sessionConfig || {}
+      });
+
+      if (!rpcResult.error) {
+        return { saved: true, reason: "rpc", data: rpcResult.data };
+      }
+
+      if (rpcResult.error.code === "42883" || rpcResult.error.code === "PGRST202") {
+        const legacyRpcResult = await supabase.rpc("complete_daily_challenge", {
+          p_challenge_id: result.challenge.id,
+          p_score: Number(result.score || 0),
+          p_won: Boolean(result.won),
+          p_elapsed_seconds: Number(result.elapsedSeconds || 0),
+          p_moves_used: Number(result.movesUsed || 0),
+          p_target_progress: Number(result.targetProgress || 0)
+        });
+
+        if (!legacyRpcResult.error) {
+          return { saved: true, reason: "legacy_rpc", data: legacyRpcResult.data };
+        }
+
+        if (legacyRpcResult.error.code !== "42883" && legacyRpcResult.error.code !== "PGRST202") {
+          throw legacyRpcResult.error;
+        }
+      }
+
+      if (rpcResult.error.code !== "42883" && rpcResult.error.code !== "PGRST202") {
+        console.warn("Daily result RPC failed, falling back to direct save:", rpcResult.error);
+      }
+    }
+
     const row = {
       user_id: user.id,
       challenge_id: result.challenge.id,
       mode: result.challenge.mode,
       difficulty_tier: result.challenge.difficultyTier,
+      challenge_date: result.challenge.challengeDate,
+      slot_index: result.challenge.slotIndex,
+      challenge_title: result.challenge.title,
+      challenge_mode: result.challenge.mode,
+      challenge_difficulty_tier: result.challenge.difficultyTier,
+      challenge_xp_reward: result.challenge.xpReward,
       score: Number(result.score || 0),
       won: Boolean(result.won),
+      completed: Boolean(result.won),
       elapsed_seconds: Number(result.elapsedSeconds || 0),
       moves_used: Number(result.movesUsed || 0),
       target_progress: Number(result.targetProgress || 0),
+      session_config: result.sessionConfig || {},
+      result_version: 2,
       completed_at: new Date().toISOString()
     };
 
@@ -224,6 +455,9 @@
         .eq("id", existing.id);
 
       if (updateError) {
+        if (isMissingDailyResultColumn(updateError)) {
+          return updateLegacyDailyResult(supabase, existing.id, row);
+        }
         throw updateError;
       }
       return { saved: true, reason: "updated" };
@@ -231,10 +465,89 @@
 
     const { error: insertError } = await supabase.from("daily_results").insert(row);
     if (insertError) {
+      if (isMissingDailyResultColumn(insertError)) {
+        return insertLegacyDailyResult(supabase, row);
+      }
       throw insertError;
     }
 
     return { saved: true, reason: "inserted" };
+  }
+
+  async function submitFeedback({ contactEmail, message, pageUrl }) {
+    const supabase = getClient();
+    const user = await getCurrentUser();
+    if (!user) {
+      return { saved: false, reason: "not_signed_in" };
+    }
+
+    const content = String(message || "").trim();
+    if (!content) {
+      throw new Error("请填写留言内容");
+    }
+    if (content.length > 800) {
+      throw new Error("留言内容不能超过 800 字");
+    }
+
+    const email = String(contactEmail || "").trim();
+    const { error } = await supabase.from("feedback_messages").insert({
+      user_id: user.id,
+      contact_email: email || null,
+      message: content,
+      page_url: pageUrl || window.location.href,
+      user_agent: navigator.userAgent,
+      status: "new"
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return { saved: true };
+  }
+
+  function isMissingDailyResultColumn(error) {
+    const message = String(error && error.message || "");
+    return error && (error.code === "42703" || error.code === "PGRST204" || /completed|xp_claimed|attempts|best_time|lives_remaining|session_config/.test(message));
+  }
+
+  async function updateLegacyDailyResult(supabase, id, row) {
+    const { error } = await supabase
+      .from("daily_results")
+      .update({
+        score: row.score,
+        won: row.won,
+        elapsed_seconds: row.elapsed_seconds,
+        moves_used: row.moves_used,
+        target_progress: row.target_progress,
+        completed_at: row.completed_at
+      })
+      .eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+    return { saved: true, reason: "legacy_updated" };
+  }
+
+  async function insertLegacyDailyResult(supabase, row) {
+    const { error } = await supabase.from("daily_results").insert({
+      user_id: row.user_id,
+      challenge_id: row.challenge_id,
+      mode: row.mode,
+      difficulty_tier: row.difficulty_tier,
+      score: row.score,
+      won: row.won,
+      elapsed_seconds: row.elapsed_seconds,
+      moves_used: row.moves_used,
+      target_progress: row.target_progress,
+      completed_at: row.completed_at
+    });
+
+    if (error) {
+      throw error;
+    }
+    return { saved: true, reason: "legacy_inserted" };
   }
 
   function buildGameStats(rows) {
@@ -270,10 +583,16 @@
     normalizeUsername,
     authEmailFromUsername,
     friendlyError,
+    calculateLevel,
     fetchProfile,
+    fetchPlayerXpSummary,
     fetchGameStats,
     fetchDailyChallenges,
     fetchDailyChallengeById,
-    saveDailyResult
+    fetchDailyProgress,
+    fetchDailyChallengeDates,
+    fetchDailyResultRows,
+    saveDailyResult,
+    submitFeedback
   };
 })();

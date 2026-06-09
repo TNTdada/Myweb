@@ -1,9 +1,7 @@
 import { shuffle } from "./rng.js";
 
 export const SHAPE_TYPES = {
-  RECTANGLE: "rectangle",
-  CENTER_HOLE: "center_hole",
-  CORNER_BLOCKS: "corner_blocks"
+  RECTANGLE: "rectangle"
 };
 
 export function cellKey(row, col) {
@@ -38,12 +36,6 @@ export function getNeighbors(cell, activeSet) {
 }
 
 export function createActiveCells(shapeType, rows, cols, rng) {
-  if (shapeType === SHAPE_TYPES.CENTER_HOLE) {
-    return createCenterHole(rows, cols);
-  }
-  if (shapeType === SHAPE_TYPES.CORNER_BLOCKS) {
-    return createCornerBlocks(rows, cols, rng);
-  }
   return createRectangle(rows, cols);
 }
 
@@ -57,62 +49,6 @@ export function createRectangle(rows, cols) {
   }
 
   return active;
-}
-
-export function createCenterHole(rows, cols) {
-  const active = [];
-  const holeRows = Math.max(2, Math.floor(rows * 0.24));
-  const holeCols = Math.max(2, Math.floor(cols * 0.24));
-  const rowStart = Math.floor((rows - holeRows) / 2);
-  const rowEnd = rowStart + holeRows;
-  const colStart = Math.floor((cols - holeCols) / 2);
-  const colEnd = colStart + holeCols;
-
-  for (let row = 0; row < rows; row += 1) {
-    for (let col = 0; col < cols; col += 1) {
-      const inHole = row >= rowStart && row < rowEnd && col >= colStart && col < colEnd;
-      if (!inHole) {
-        active.push({ row, col, key: cellKey(row, col) });
-      }
-    }
-  }
-
-  return active;
-}
-
-export function createCornerBlocks(rows, cols, rng) {
-  const activeSet = new Set();
-  const blockRows = Math.max(3, Math.floor(rows * 0.44));
-  const blockCols = Math.max(3, Math.floor(cols * 0.44));
-  const leftBridgeCol = blockCols - 1;
-  const rightBridgeCol = cols - blockCols;
-  const topBridgeRow = blockRows - 1;
-  const bottomBridgeRow = rows - blockRows;
-
-  addBlock(activeSet, 0, 0, blockRows, blockCols);
-  addBlock(activeSet, 0, cols - blockCols, blockRows, cols);
-  addBlock(activeSet, rows - blockRows, 0, rows, blockCols);
-  addBlock(activeSet, rows - blockRows, cols - blockCols, rows, cols);
-
-  for (let col = leftBridgeCol; col <= rightBridgeCol; col += 1) {
-    activeSet.add(cellKey(topBridgeRow, col));
-    activeSet.add(cellKey(bottomBridgeRow, col));
-  }
-
-  for (let row = topBridgeRow; row <= bottomBridgeRow; row += 1) {
-    activeSet.add(cellKey(row, leftBridgeCol));
-    activeSet.add(cellKey(row, rightBridgeCol));
-  }
-
-  return Array.from(activeSet).map((key) => ({ ...parseCellKey(key), key }));
-}
-
-function addBlock(activeSet, rowStart, colStart, rowEnd, colEnd) {
-  for (let row = rowStart; row < rowEnd; row += 1) {
-    for (let col = colStart; col < colEnd; col += 1) {
-      activeSet.add(cellKey(row, col));
-    }
-  }
 }
 
 export function isConnected(activeCells) {

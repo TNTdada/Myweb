@@ -4,49 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>扫雷游戏</title>
-  <link rel="stylesheet" href="assets/css/style.css?v=20260608d">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260609g">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="assets/js/theme.js" defer></script>
-  <script src="assets/js/supabaseClient.js?v=20260608d" defer></script>
-  <script src="assets/js/account.js" defer></script>
-  <script src="assets/js/game.js?v=20260608d" defer></script>
+  <script src="assets/js/supabaseClient.js?v=20260609b" defer></script>
+  <script src="assets/js/modeInfo.js?v=20260609c" defer></script>
+  <script src="assets/js/feedback.js?v=20260609a" defer></script>
+  <script src="assets/js/account.js?v=20260609d" defer></script>
+  <script src="assets/js/game.js?v=20260609h" defer></script>
 </head>
 <body class="game-page">
   <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
     <span data-theme-icon>☾</span>
   </button>
-  <div class="account-widget">
-    <button class="account-button" id="accountButton" type="button">未登录</button>
-    <section class="account-panel" id="accountPanel" hidden aria-label="账户数据面板">
-      <div class="account-panel-heading">
-        <strong id="accountPanelName">未登录</strong>
-        <span id="accountPanelStatus">登录后记录游戏数据</span>
-      </div>
-      <dl class="mini-stats">
-        <div>
-          <dt>游戏局数</dt>
-          <dd id="miniGames">0</dd>
-        </div>
-        <div>
-          <dt>胜场</dt>
-          <dd id="miniWins">0</dd>
-        </div>
-        <div>
-          <dt>最高分</dt>
-          <dd id="miniBestScore">0</dd>
-        </div>
-        <div>
-          <dt>总时长</dt>
-          <dd id="miniTotalTime">0s</dd>
-        </div>
-      </dl>
-      <div class="account-actions">
-        <a class="ghost-button" href="profile.html">详细信息</a>
-        <button class="ghost-button" id="signOutButton" type="button">退出</button>
-      </div>
-    </section>
-  </div>
-
   <main class="game-shell">
     <header class="game-header">
       <div>
@@ -59,43 +29,44 @@
       <aside class="game-sidebar" aria-label="游戏信息">
         <section class="game-status" aria-label="游戏状态">
           <div class="status-item">
-            <span class="status-label">剩余雷数</span>
+            <span class="status-label">💣 雷数</span>
             <strong id="mineCounter">0</strong>
           </div>
           <div class="status-item">
-            <span class="status-label">用时</span>
-            <strong><span id="timer">0</span>s</strong>
+            <span class="status-label" id="timerLabel">⏱ 用时</span>
+            <strong id="timer">0s</strong>
           </div>
           <div class="status-item">
-            <span class="status-label">状态</span>
+            <span class="status-label">📍 状态</span>
             <strong id="stateText">准备中</strong>
           </div>
           <div class="status-item" id="modeItem" hidden>
-            <span class="status-label">模式</span>
+            <span class="status-label">🎮 模式 <button class="info-dot" id="modeRuleButton" type="button" aria-label="查看模式规则">!</button></span>
             <strong id="modeText">经典</strong>
           </div>
           <div class="status-item" id="targetItem" hidden>
-            <span class="status-label">目标</span>
+            <span class="status-label">🎯 目标</span>
             <strong id="targetText">0/0</strong>
           </div>
           <div class="status-item" id="movesItem" hidden>
-            <span class="status-label">剩余步数</span>
+            <span class="status-label">👣 剩余步数</span>
             <strong id="movesText">不限</strong>
           </div>
           <div class="status-item" id="mistakeItem" hidden>
-            <span class="status-label">容错</span>
+            <span class="status-label">❤️ 生命</span>
             <strong id="mistakeText">0/0</strong>
           </div>
         </section>
 
         <div class="sidebar-actions">
           <button class="ghost-button" id="restartButton" type="button">重新开始</button>
-          <a class="ghost-button" href="index.html">返回首页</a>
+          <a class="ghost-button" id="backLink" href="index.html">返回首页</a>
         </div>
       </aside>
 
       <section class="board-section" aria-label="扫雷棋盘">
         <div class="board-wrap" id="boardWrap">
+          <div class="board-scan" id="boardScan" hidden></div>
           <div class="board" id="board" role="grid" aria-label="扫雷棋盘"></div>
         </div>
       </section>
@@ -122,7 +93,7 @@
       </dl>
       <div class="dialog-actions">
         <button class="primary-button" id="playAgainButton" type="button">再来一局</button>
-        <a class="ghost-button" href="index.html">返回首页</a>
+        <a class="ghost-button" id="resultBackLink" href="index.html">返回首页</a>
       </div>
     </div>
   </dialog>

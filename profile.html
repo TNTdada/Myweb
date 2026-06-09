@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>个人详情 | 扫雷</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260609c">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="assets/js/theme.js" defer></script>
-  <script src="assets/js/supabaseClient.js" defer></script>
-  <script src="assets/js/profile.js" defer></script>
+  <script src="assets/js/supabaseClient.js?v=20260609b" defer></script>
+  <script src="assets/js/feedback.js?v=20260609a" defer></script>
+  <script src="assets/js/account.js?v=20260609c" defer></script>
+  <script src="assets/js/profile.js?v=20260609b" defer></script>
 </head>
 <body class="profile-page">
   <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
@@ -42,19 +44,21 @@
       </div>
     </section>
 
-    <section class="stats-grid" aria-label="游戏统计">
-      <div class="stat-card"><span>游戏局数</span><strong id="statGames">0</strong></div>
-      <div class="stat-card"><span>胜场</span><strong id="statWins">0</strong></div>
-      <div class="stat-card"><span>胜率</span><strong id="statWinRate">0%</strong></div>
-      <div class="stat-card"><span>最高分</span><strong id="statBestScore">0</strong></div>
-      <div class="stat-card"><span>平均分</span><strong id="statAvgScore">0</strong></div>
-      <div class="stat-card"><span>总时长</span><strong id="statTotalTime">0s</strong></div>
-      <div class="stat-card"><span>平均用时</span><strong id="statAvgTime">0s</strong></div>
-      <div class="stat-card"><span>最佳用时</span><strong id="statBestTime">-</strong></div>
-      <div class="stat-card"><span>初级局数</span><strong id="statBeginner">0</strong></div>
-      <div class="stat-card"><span>中级局数</span><strong id="statIntermediate">0</strong></div>
-      <div class="stat-card"><span>高级局数</span><strong id="statExpert">0</strong></div>
-      <div class="stat-card"><span>最近游玩</span><strong id="statLastPlayed">-</strong></div>
+    <section class="level-card" aria-label="等级进度">
+      <div>
+        <span>等级</span>
+        <strong id="statLevel">Lv.1</strong>
+      </div>
+      <div class="level-meta">
+        <span id="statLevelProgress">0/3000 XP</span>
+        <span>距下一级 <strong id="statXpToNext">3000</strong> XP</span>
+      </div>
+      <div class="xp-progress"><span id="profileXpBar"></span></div>
+      <span id="statTotalXp">总 XP 0</span>
+    </section>
+
+    <section class="stats-grid stats-categories" id="statsCategories" aria-label="游戏统计">
+      <article class="stat-category-card"><h2>正在读取统计</h2></article>
     </section>
 
     <p class="profile-message" id="profileMessage">正在读取数据</p>

@@ -101,7 +101,15 @@
     localStorage.setItem("minefield-login-failures", "0");
     localStorage.setItem("minefield-login-cooldown", "0");
     setMessage("登录成功，正在返回首页");
-    window.location.href = "index.html";
+    const redirect = sanitizeRedirect(new URLSearchParams(window.location.search).get("redirect"));
+    window.location.href = redirect || "index.html";
+  }
+
+  function sanitizeRedirect(value) {
+    if (!value || value.includes(":") || value.startsWith("/") || value.includes("\\")) {
+      return "";
+    }
+    return value;
   }
 
   async function init() {

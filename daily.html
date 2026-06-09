@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>每日挑战 | 扫雷</title>
-  <link rel="stylesheet" href="assets/css/style.css?v=20260608d">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260609d">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="assets/js/theme.js" defer></script>
-  <script src="assets/js/supabaseClient.js?v=20260608d" defer></script>
-  <script src="assets/js/daily.js?v=20260608d" defer></script>
+  <script src="assets/js/supabaseClient.js?v=20260609b" defer></script>
+  <script src="assets/js/modeInfo.js?v=20260609c" defer></script>
+  <script src="assets/js/feedback.js?v=20260609a" defer></script>
+  <script src="assets/js/account.js?v=20260609d" defer></script>
+  <script src="assets/js/daily.js?v=20260609d" defer></script>
 </head>
 <body class="daily-page">
   <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深色模式" title="切换深色模式">
@@ -27,9 +30,10 @@
 
     <section class="daily-toolbar" aria-label="日期切换">
       <button class="ghost-button" id="prevDayButton" type="button">前一天</button>
-      <strong id="dailyDateLabel">-</strong>
+      <button class="daily-date-button" id="dailyDateButton" type="button"><strong id="dailyDateLabel">-</strong></button>
       <button class="ghost-button" id="nextDayButton" type="button">后一天</button>
       <button class="ghost-button" id="todayButton" type="button">今天</button>
+      <section class="calendar-panel" id="calendarPanel" hidden aria-label="挑战日历"></section>
     </section>
 
     <section class="daily-grid" id="dailyGrid" aria-label="挑战列表"></section>

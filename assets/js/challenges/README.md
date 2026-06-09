@@ -1,13 +1,13 @@
 # Challenge Logic Modules
 
-These modules are intentionally independent from the current game UI.
+These modules are intentionally independent from the game UI so they can be tested and reused by the SQL generator.
 
 - `rng.js`: deterministic seeded random helpers.
-- `mapShapes.js`: active-cell map generation, non-rectangular shapes, connectivity checks, minefield generation.
+- `mapShapes.js`: active-cell map generation, connectivity checks, minefield generation.
 - `modes.js`: Microsoft Minesweeper-inspired challenge mode rule state.
 - `dailyGenerator.js`: deterministic five-challenge daily set generation.
 
-The next integration step is to adapt `game.js` to consume these modules through a `challenge` query parameter and a Supabase-loaded challenge config.
+`game.js` contains the browser runtime integration. These smaller modules provide a stable test surface for daily challenge generation and rule evaluation.
 
 Generate database rows with:
 

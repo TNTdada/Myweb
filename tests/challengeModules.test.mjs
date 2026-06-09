@@ -15,16 +15,18 @@ for (const challenge of challenges) {
   assert.equal(isConnected(minefield.activeCells), true);
   assert.equal(minefield.mineKeys.length, challenge.mines);
   assert.equal(minefield.mineKeys.includes(minefield.startKey), false);
+  assert.equal(challenge.shapeType, SHAPE_TYPES.RECTANGLE);
+  assert.equal(typeof challenge.xpReward, "number");
 }
 
-const centerHole = createMinefield({
+const rectangle = createMinefield({
   rows: 14,
   cols: 14,
   mines: 24,
-  shapeType: SHAPE_TYPES.CENTER_HOLE
-}, createRng("center-hole-test"));
-assert.equal(isConnected(centerHole.activeCells), true);
-assert.ok(centerHole.activeCells.length < 14 * 14);
+  shapeType: SHAPE_TYPES.RECTANGLE
+}, createRng("rectangle-test"));
+assert.equal(isConnected(rectangle.activeCells), true);
+assert.equal(rectangle.activeCells.length, 14 * 14);
 
 let detonation = createModeState({
   mode: GAME_MODES.DETONATION
@@ -49,12 +51,27 @@ flags = applyModeAction({
   targetCount: 2,
   moveLimit: 2
 }, flags, { type: "flag", isMine: false });
+assert.equal(flags.movesUsed, 0);
+assert.equal(flags.status, "playing");
 flags = applyModeAction({
   mode: GAME_MODES.FLAGS,
   targetCount: 2,
   moveLimit: 2
 }, flags, { type: "flag", isMine: true });
-assert.equal(flags.status, "failed");
+assert.equal(flags.movesUsed, 0);
+assert.equal(flags.status, "playing");
+flags = applyModeAction({
+  mode: GAME_MODES.FLAGS,
+  targetCount: 2,
+  moveLimit: 2
+}, flags, { type: "flag", isMine: true });
+assert.equal(flags.status, "playing");
+flags = applyModeAction({
+  mode: GAME_MODES.FLAGS,
+  targetCount: 2,
+  moveLimit: 2
+}, flags, { type: "flag", correctFlags: 2, wrongFlags: 0 });
+assert.equal(flags.status, "won");
 
 let impossibleDetonation = createModeState({
   mode: GAME_MODES.DETONATION
@@ -66,5 +83,18 @@ impossibleDetonation = applyModeAction({
 }, impossibleDetonation, { type: "reveal", isMine: false });
 assert.equal(impossibleDetonation.status, "failed");
 assert.equal(impossibleDetonation.reason, "剩余步数不足以完成引爆目标");
+
+let tapsLives = createModeState({
+  mode: GAME_MODES.TAPS,
+  lives: 1
+});
+tapsLives = applyModeAction({
+  mode: GAME_MODES.TAPS,
+  targetCount: 3,
+  mineMistakeLimit: 99,
+  lives: 1
+}, tapsLives, { type: "reveal", isMine: true });
+assert.equal(tapsLives.status, "failed");
+assert.equal(tapsLives.reason, "生命值已耗尽");
 
 console.log("challenge module tests passed");

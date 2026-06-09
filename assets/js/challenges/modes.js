@@ -33,7 +33,7 @@ export const MODE_DEFINITIONS = {
   },
   [GAME_MODES.FLAGS]: {
     label: "插旗",
-    summary: "只能插旗，在步数内正确标记目标数量地雷。",
+    summary: "只能插旗，正确标记目标数量地雷。",
     allowedActions: ["flag"],
     successMetric: "correctFlags"
   }
@@ -43,6 +43,7 @@ export function createModeState(challenge) {
   return {
     mode: challenge.mode,
     movesUsed: 0,
+    livesRemaining: typeof challenge.lives === "number" ? challenge.lives : null,
     mineMistakes: 0,
     revealedSafe: 0,
     detonatedMines: 0,
@@ -66,16 +67,16 @@ export function applyModeAction(challenge, state, action) {
     return { ...next, status: "failed", reason: "该模式不允许此操作" };
   }
 
-  const flagChanged =
-    actionType !== "flag" ||
-    typeof action.flagged !== "boolean" ||
-    typeof action.wasFlagged !== "boolean" ||
-    action.flagged !== action.wasFlagged;
-  next.movesUsed += actionType === "reveal" || (actionType === "flag" && flagChanged) ? 1 : 0;
+  next.movesUsed += actionType === "reveal" ? 1 : 0;
 
   if (challenge.mode === GAME_MODES.DETONATION) {
     if (actionType === "reveal" && action.isMine) {
       next.detonatedMines += 1;
+    } else if (actionType === "reveal") {
+      next.mineMistakes += 1;
+      if (typeof next.livesRemaining === "number") {
+        next.livesRemaining -= 1;
+      }
     }
   } else if (challenge.mode === GAME_MODES.FLAGS) {
     if (typeof action.correctFlags === "number") {
@@ -92,6 +93,9 @@ export function applyModeAction(challenge, state, action) {
   } else {
     if (actionType === "reveal" && action.isMine) {
       next.mineMistakes += 1;
+      if (typeof next.livesRemaining === "number") {
+        next.livesRemaining -= 1;
+      }
     } else if (actionType === "reveal") {
       next.revealedSafe += Math.max(1, Number(action.revealedCount || 1));
     }
@@ -110,6 +114,9 @@ export function evaluateModeState(challenge, state) {
     if (next.revealedSafe >= challenge.targetCount) {
       return { ...next, status: "won", reason: "目标完成" };
     }
+    if (typeof next.livesRemaining === "number" && next.livesRemaining <= 0) {
+      return { ...next, status: "failed", reason: "生命值已耗尽" };
+    }
     if (next.mineMistakes > challenge.mineMistakeLimit) {
       return { ...next, status: "failed", reason: "踩雷次数超过限制" };
     }
@@ -119,16 +126,23 @@ export function evaluateModeState(challenge, state) {
     if (next.treasureFound) {
       return { ...next, status: "won", reason: "找到宝藏" };
     }
+    if (typeof next.livesRemaining === "number" && next.livesRemaining <= 0) {
+      return { ...next, status: "failed", reason: "生命值已耗尽" };
+    }
     if (next.mineMistakes > challenge.mineMistakeLimit) {
       return { ...next, status: "failed", reason: "踩雷次数超过限制" };
     }
+  }
+
+  if (challenge.mode === GAME_MODES.DETONATION && typeof next.livesRemaining === "number" && next.livesRemaining <= 0) {
+    return { ...next, status: "failed", reason: "机会已用完" };
   }
 
   if (challenge.mode === GAME_MODES.DETONATION && next.detonatedMines >= challenge.targetCount) {
     return { ...next, status: "won", reason: "引爆目标完成" };
   }
 
-  if (challenge.mode === GAME_MODES.FLAGS && next.correctFlags >= challenge.targetCount) {
+  if (challenge.mode === GAME_MODES.FLAGS && next.correctFlags >= challenge.targetCount && next.wrongFlags === 0) {
     return { ...next, status: "won", reason: "插旗目标完成" };
   }
 
@@ -154,11 +168,6 @@ function getImpossibleReason(challenge, state) {
     const remainingTargets = challenge.targetCount - state.detonatedMines;
     return remainingMoves < remainingTargets ? "剩余步数不足以完成引爆目标" : "";
   }
-  if (challenge.mode === GAME_MODES.FLAGS) {
-    const remainingTargets = challenge.targetCount - state.correctFlags;
-    return remainingMoves < remainingTargets ? "剩余步数不足以完成插旗目标" : "";
-  }
-
   return "";
 }
 
